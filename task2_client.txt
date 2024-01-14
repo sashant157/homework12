@@ -1,0 +1,72 @@
+root@otus-ubuntu:/home/sashant/homework/homework12/task2/otus-linux-adm/selinux_dns_problems# vagrant ssh client
+Last login: Sun Jan 14 08:31:42 2024 from 10.0.2.2
+###############################
+### Welcome to the DNS lab! ###
+###############################
+
+- Use this client to test the enviroment
+- with dig or nslookup. Ex:
+    dig @192.168.50.10 ns01.dns.lab
+
+- nsupdate is available in the ddns.lab zone. Ex:
+    nsupdate -k /etc/named.zonetransfer.key
+    server 192.168.50.10
+    zone ddns.lab 
+    update add www.ddns.lab. 60 A 192.168.50.15
+    send
+
+- rndc is also available to manage the servers
+    rndc -c ~/rndc.conf reload
+
+###############################
+### Enjoy! ####################
+###############################
+[vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
+update failed: SERVFAIL
+> quit
+[vagrant@client ~]$ sudi -i
+-bash: sudi: command not found
+[vagrant@client ~]$ sudo -i
+[root@client ~]# cat /var/log/audit/audit.log | audit2why 
+[root@client ~]# 
+[root@client ~]# exit
+logout
+[vagrant@client ~]$ nsupdate -k /etc/named.zonetransfer.key
+> server 192.168.50.10
+> zone ddns.lab
+> update add www.ddns.lab. 60 A 192.168.50.15
+> send
+> quit
+[vagrant@client ~]$ dig www.ddns.lab
+
+; <<>> DiG 9.11.4-P2-RedHat-9.11.4-26.P2.el7_9.15 <<>> www.ddns.lab
+;; global options: +cmd
+;; Got answer:
+;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 51106
+;; flags: qr aa rd ra; QUERY: 1, ANSWER: 1, AUTHORITY: 1, ADDITIONAL: 2
+
+;; OPT PSEUDOSECTION:
+; EDNS: version: 0, flags:; udp: 4096
+;; QUESTION SECTION:
+;www.ddns.lab.			IN	A
+
+;; ANSWER SECTION:
+www.ddns.lab.		60	IN	A	192.168.50.15
+
+;; AUTHORITY SECTION:
+ddns.lab.		3600	IN	NS	ns01.dns.lab.
+
+;; ADDITIONAL SECTION:
+ns01.dns.lab.		3600	IN	A	192.168.50.10
+
+;; Query time: 5 msec
+;; SERVER: 192.168.50.10#53(192.168.50.10)
+;; WHEN: Sun Jan 14 08:52:35 UTC 2024
+;; MSG SIZE  rcvd: 96
+
+[vagrant@client ~]$ 
+
